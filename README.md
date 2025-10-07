@@ -1,45 +1,48 @@
-# PlayerList Plugin para CS2
+# PlayerList Plugin for CS2
 
-Este plugin para Counter-Strike 2 agrega comandos RCON que permiten obtener información de los jugadores conectados al servidor y estadísticas del servidor. El formato de salida depende de los parámetros proporcionados:
+[![English](https://img.shields.io/badge/README-English-blue)](README.md)
+[![Español](https://img.shields.io/badge/README-Español-red)](README_es.md)
 
-- Sin parámetros: Muestra tabla formateada
-- Con parámetro `json`: Devuelve JSON
+This plugin for Counter-Strike 2 adds RCON commands that allow you to get information about players connected to the server and server statistics. The output format depends on the parameters provided:
 
-**Nota importante**: Los comandos solo pueden ser ejecutados desde la consola del servidor o RCON. Los jugadores en el juego no pueden ejecutar estos comandos.
+- Without parameters: Displays formatted table
+- With `json` parameter: Returns JSON
 
-## Características
+**Important note**: Commands can only be executed from the server console or RCON. In-game players cannot execute these commands.
 
-- Comando `playerlist` con salida condicional (tabla o JSON) e información del servidor
-- Comando `serverinfo` para obtener información detallada del servidor
-- Comando `playerinfo` para obtener información detallada de un jugador específico
-- Comando `exportplayerlist` para exportar la lista de jugadores a un archivo JSON
-- Filtros para el comando [`playerlist`](https://github.com/usuario/cs2-PlayerList/blob/main/Commands/PlayerListCommand.cs)
-- Seguimiento de tiempo de sesión de los jugadores
-- Configuración personalizable usando el sistema de configuración de CounterStrikeSharp
-- **Restricción de seguridad**: Solo puede ser ejecutado por administradores del servidor (consola o RCON)
+## Features
 
-## Comandos disponibles
+- `playerlist` command with conditional output (table or JSON) and server information
+- `serverinfo` command to get detailed server information
+- `playerinfo` command to get detailed information about a specific player
+- `exportplayerlist` command to export the player list to a JSON file
+- Filters for the [`playerlist`](https://github.com/prahzera/cs2-PlayerList/blob/main/Commands/PlayerListCommand.cs) command
+- Player session time tracking
+- Customizable configuration using CounterStrikeSharp's configuration system
+- **Security restriction**: Can only be executed by server administrators (console or RCON)
+
+## Available Commands
 
 ### playerlist
-Muestra una lista de todos los jugadores conectados con información del servidor.
+Displays a list of all connected players with server information.
 
-**Uso:**
+**Usage:**
 ```
-playerlist [json] [filtros]
+playerlist [json] [filters]
 ```
 
-**Formatos de salida:**
-- `playerlist` - Muestra una tabla formateada con información del servidor
-- `playerlist json` - Devuelve JSON con información del servidor y jugadores
+**Output formats:**
+- `playerlist` - Displays a formatted table with server information
+- `playerlist json` - Returns JSON with server and player information
 
-**Filtros disponibles:**
-- `--team:t` o `--terrorist`: Mostrar solo jugadores del equipo terrorista
-- `--team:ct` o `--counterterrorist`: Mostrar solo jugadores del equipo contra-terrorista
-- `--team:spectator`: Mostrar solo espectadores
-- `--no-bots` o `--exclude-bots`: Excluir bots de la lista
-- `--players-only`: Mostrar solo jugadores humanos
+**Available filters:**
+- `--team:t` or `--terrorist`: Show only terrorist team players
+- `--team:ct` or `--counterterrorist`: Show only counter-terrorist team players
+- `--team:spectator`: Show only spectators
+- `--no-bots` or `--exclude-bots`: Exclude bots from the list
+- `--players-only`: Show only human players
 
-**Ejemplos:**
+**Examples:**
 ```
 playerlist
 playerlist json
@@ -48,92 +51,92 @@ playerlist --team:t --no-bots
 ```
 
 ### serverinfo
-Muestra información detallada del servidor.
+Displays detailed server information.
 
-**Uso:**
+**Usage:**
 ```
 serverinfo [json]
 ```
 
-**Formatos de salida:**
-- `serverinfo` - Muestra una tabla formateada con información del servidor
-- `serverinfo json` - Devuelve JSON con información del servidor
+**Output formats:**
+- `serverinfo` - Displays a formatted table with server information
+- `serverinfo json` - Returns JSON with server information
 
-**Ejemplos:**
+**Examples:**
 ```
 serverinfo
 serverinfo json
 ```
 
 ### playerinfo
-Muestra información detallada de un jugador específico.
+Displays detailed information about a specific player.
 
-**Uso:**
+**Usage:**
 ```
 playerinfo <steamid>
 ```
 
-**Ejemplo:**
+**Example:**
 ```
 playerinfo 76561198012345678
 ```
 
 ### exportplayerlist
-Exporta la lista de jugadores a un archivo JSON en el directorio de configuración del servidor.
+Exports the player list to a JSON file in the server's configuration directory.
 
-**Uso:**
+**Usage:**
 ```
 exportplayerlist
 ```
 
-## Instalación
+## Installation
 
-1. Compila el plugin usando `dotnet build`
-2. Copia el archivo `PlayerListPlugin.dll` generado en la carpeta `plugins` de tu servidor CS2
-3. Reinicia el servidor
+1. Compile the plugin using `dotnet build`
+2. Copy the generated `PlayerListPlugin.dll` file to your CS2 server's `plugins` folder
+3. Restart the server
 
-La primera vez que se ejecute el plugin, CounterStrikeSharp creará automáticamente un archivo de configuración en [`configs/plugins/PlayerListPlugin.json`](https://github.com/usuario/cs2-PlayerList/blob/main/configs/plugins/PlayerListPlugin/PlayerListPlugin.json) con la configuración predeterminada.
+The first time the plugin is run, CounterStrikeSharp will automatically create a configuration file at [`configs/plugins/PlayerListPlugin.json`](https://github.com/usuario/cs2-PlayerList/blob/main/configs/plugins/PlayerListPlugin/PlayerListPlugin.json) with the default settings.
 
-## Uso
+## Usage
 
-### Mostrar tabla de jugadores con información del servidor
+### Display player table with server information
 
-Ejecuta el comando `playerlist` desde la consola del servidor:
+Run the `playerlist` command from the server console:
 
 ```
 playerlist
 ```
 
-Esto mostrará una tabla formateada como:
+This will display a formatted table like:
 
 ```
 ========================================================================
-SERVIDOR: Servidor de Ejemplo | MAPA: de_dust2
-JUGADORES: 2/16
+SERVER: Sample Server | MAP: de_dust2
+PLAYERS: 2/16
 ========================================================================
-Nombre               SteamID           Equipo          Bot   Tiempo Sesión  
+Name                 SteamID           Team            Bot   Session Time  
 ------------------------------------------------------------------------
-Juan Perez           76561198012345678 Terrorista      No    15m 30s        
-Bot1                 0                 Anti-Terrorista Si    12m 45s        
+John Doe             76561198012345678 Terrorist       No    15m 30s        
+Bot1                 0                 Counter-Terrorist Yes   12m 45s        
 ------------------------------------------------------------------------
-Total de jugadores: 2 | Tiempo activo: 25m 10s
+Total players: 2 | Uptime: 25m 10s
 ========================================================================
 ```
 
-### Mostrar JSON de jugadores con información del servidor
+### Display JSON of players with server information
 
-Ejecuta el comando `playerlist json` desde la consola del servidor o RCON:
+Run the `playerlist json` command from the server console or RCON:
 
 ```
 playerlist json
 ```
 
-Esto devolverá un JSON como:
+This will return JSON like:
 
 ```json
 {
   "ServerInfo": {
-    "HostName": "Servidor de Ejemplo",
+    "HostName": "Sample Server",
     "MapName": "de_dust2",
     "MaxPlayers": 16,
     "CurrentPlayers": 2,
@@ -142,9 +145,9 @@ Esto devolverá un JSON como:
   "PlayerCount": 2,
   "Players": [
     {
-      "Name": "Juan Perez",
+      "Name": "John Doe",
       "SteamID": "76561198012345678",
-      "Team": "Terrorista",
+      "Team": "Terrorist",
       "ConnectedTime": 1697049600,
       "SessionTime": "00:15:30",
       "IsBot": false
@@ -152,7 +155,7 @@ Esto devolverá un JSON como:
     {
       "Name": "Bot1",
       "SteamID": "0",
-      "Team": "Anti-Terrorista",
+      "Team": "Counter-Terrorist",
       "ConnectedTime": 1697049600,
       "SessionTime": "00:12:45",
       "IsBot": true
@@ -161,36 +164,36 @@ Esto devolverá un JSON como:
 }
 ```
 
-### Mostrar información del servidor
+### Display server information
 
-Ejecuta el comando `serverinfo` desde la consola del servidor:
+Run the `serverinfo` command from the server console:
 
 ```
 serverinfo
 ```
 
-Esto mostrará una tabla formateada como:
+This will display a formatted table like:
 
 ```
 ========================================================================
-INFORMACIÓN DEL SERVIDOR
+SERVER INFORMATION
 ========================================================================
-Nombre del servidor:     Servidor de Ejemplo
-Mapa actual:             de_dust2
-Jugadores:               2/16
-Tiempo activo plugin:    25m 10s
+Server name:         Sample Server
+Current map:         de_dust2
+Players:             2/16
+Plugin uptime:       25m 10s
 ========================================================================
 ```
 
-## Configuración
+## Configuration
 
-El plugin utiliza el sistema de configuración integrado de CounterStrikeSharp. La primera vez que se ejecuta, se crea automáticamente un archivo de configuración en:
+The plugin uses CounterStrikeSharp's built-in configuration system. The first time it runs, a configuration file is automatically created at:
 
 ```
 configs/plugins/PlayerListPlugin/PlayerListPlugin.json
 ```
 
-Contenido predeterminado:
+Default content:
 ```json
 {
   "EnablePlayerInfoCommand": true,
@@ -206,11 +209,11 @@ Contenido predeterminado:
 }
 ```
 
-## Seguridad
+## Security
 
-Todos los comandos están restringidos para ser usados únicamente por administradores del servidor. Los jugadores en el juego no pueden ejecutar estos comandos, lo que previene el acceso no autorizado a la información de los jugadores.
+All commands are restricted for use only by server administrators. In-game players cannot execute these commands, which prevents unauthorized access to player information.
 
-## Requisitos
+## Requirements
 
 - Counter-Strike Sharp
 - .NET 8.0 SDK
