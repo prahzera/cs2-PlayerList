@@ -1,0 +1,6 @@
+{
+  "PluginName": "PlayerListPlugin",
+  "PluginVersion": "1.0.0",
+  "PluginAuthor": "Prahzera",
+  "PluginDescription": "Plugin que agrega un comando RCON para listar jugadores conectados en formato JSON"
+}
