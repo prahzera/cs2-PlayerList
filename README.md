@@ -6,7 +6,7 @@
 This plugin for Counter-Strike 2 adds RCON commands that allow you to get information about players connected to the server and server statistics. The output format depends on the parameters provided:
 
 - Without parameters: Displays formatted table
-- With `json` parameter: Returns JSON
+- With `json` parameter: Returns JSON with additional player statistics (kills, deaths, assists, etc.)
 
 **Important note**: Commands can only be executed from the server console or RCON. In-game players cannot execute these commands.
 
@@ -15,10 +15,10 @@ This plugin for Counter-Strike 2 adds RCON commands that allow you to get inform
 - `playerlist` command with conditional output (table or JSON) and server information
 - `serverinfo` command to get detailed server information
 - `playerinfo` command to get detailed information about a specific player
-- `exportplayerlist` command to export the player list to a JSON file
 - Filters for the [`playerlist`](https://github.com/prahzera/cs2-PlayerList/blob/main/Commands/PlayerListCommand.cs) command
-- Player session time tracking
+- Player session time tracking (time since player connected to the server)
 - Customizable configuration using CounterStrikeSharp's configuration system
+- **Enhanced JSON output**: Player statistics (kills, deaths, assists) available in JSON format only
 - **Security restriction**: Can only be executed by server administrators (console or RCON)
 
 ## Available Commands
@@ -32,8 +32,8 @@ playerlist [json] [filters]
 ```
 
 **Output formats:**
-- `playerlist` - Displays a formatted table with server information
-- `playerlist json` - Returns JSON with server and player information
+- `playerlist` - Displays a formatted table with server information (without player statistics)
+- `playerlist json` - Returns JSON with server information and player statistics (kills, deaths, assists)
 
 **Available filters:**
 - `--team:t` or `--terrorist`: Show only terrorist team players
@@ -81,21 +81,13 @@ playerinfo <steamid>
 playerinfo 76561198012345678
 ```
 
-### exportplayerlist
-Exports the player list to a JSON file in the server's configuration directory.
-
-**Usage:**
-```
-exportplayerlist
-```
-
 ## Installation
 
 1. Compile the plugin using `dotnet build`
 2. Copy the generated `PlayerListPlugin.dll` file to your CS2 server's `plugins` folder
 3. Restart the server
 
-The first time the plugin is run, CounterStrikeSharp will automatically create a configuration file at [`configs/plugins/PlayerListPlugin.json`](https://github.com/usuario/cs2-PlayerList/blob/main/configs/plugins/PlayerListPlugin/PlayerListPlugin.json) with the default settings.
+The first time the plugin is run, CounterStrikeSharp will automatically create a configuration file at [`configs/plugins/PlayerListPlugin/PlayerListPlugin.json`](https://github.com/prahzera/cs2-PlayerList/blob/main/configs/plugins/PlayerListPlugin/PlayerListPlugin.json) with the default settings.
 
 ## Usage
 
@@ -116,14 +108,14 @@ PLAYERS: 2/16
 ========================================================================
 Name                 SteamID           Team            Bot   Session Time  
 ------------------------------------------------------------------------
-John Doe             76561198012345678 Terrorist       No    15m 30s        
-Bot1                 0                 Counter-Terrorist Yes   12m 45s        
+John Doe             76561198012345678 Terrorists      No    15m 30s        
+Bot1                 0                 Counter-Terrorists Yes   12m 45s        
 ------------------------------------------------------------------------
 Total players: 2 | Uptime: 25m 10s
 ========================================================================
 ```
 
-### Display JSON of players with server information
+### Display JSON of players with server information and statistics
 
 Run the `playerlist json` command from the server console or RCON:
 
@@ -147,22 +139,32 @@ This will return JSON like:
     {
       "Name": "John Doe",
       "SteamID": "76561198012345678",
-      "Team": "Terrorist",
+      "Team": "Terrorists",
       "ConnectedTime": 1697049600,
       "SessionTime": "00:15:30",
-      "IsBot": false
+      "IsBot": false,
+      "Kills": 5,
+      "Deaths": 2,
+      "Assists": 3
     },
     {
       "Name": "Bot1",
       "SteamID": "0",
-      "Team": "Counter-Terrorist",
+      "Team": "Counter-Terrorists",
       "ConnectedTime": 1697049600,
       "SessionTime": "00:12:45",
-      "IsBot": true
+      "IsBot": true,
+      "Kills": 0,
+      "Deaths": 0,
+      "Assists": 0
     }
   ]
 }
 ```
+
+Note: Player statistics (kills, deaths, assists) are only available in JSON format, not in the formatted table.
+
+The "Session Time" shows how long the player has been connected to the server. This feature can be enabled or disabled in the configuration file.
 
 ### Display server information
 
@@ -199,7 +201,6 @@ Default content:
   "EnablePlayerInfoCommand": true,
   "EnableFilters": true,
   "TrackConnectionTime": true,
-  "EnableExport": true,
   "TableFormat": {
     "ShowBotColumn": true,
     "ShowTeamColumn": true,
@@ -208,6 +209,15 @@ Default content:
   "ConfigVersion": 1
 }
 ```
+
+Configuration options:
+- `EnablePlayerInfoCommand`: Enables/disables the `playerinfo` command
+- `EnableFilters`: Enables/disables filters for the `playerlist` command
+- `TrackConnectionTime`: Enables/disables player session time tracking
+- `TableFormat`: Controls which columns are shown in the formatted table
+  - `ShowBotColumn`: Shows/hides the "Bot" column
+  - `ShowTeamColumn`: Shows/hides the "Team" column
+  - `ShowConnectedTimeColumn`: Shows/hides the "Session Time" column
 
 ## Security
 

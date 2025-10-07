@@ -22,21 +22,21 @@
 - `playerinfo`: Muestra información detallada de un jugador específico
 - `exportplayerlist`: Exporta la lista de jugadores a un archivo JSON
 
-## [1.2.0] - 2025-09-15
+## [1.2.0] - 2025-10-5
 
 ### Añadido
 - Comando `exportplayerlist` para exportar la lista de jugadores a un archivo JSON
 - Seguimiento de tiempo de sesión de los jugadores
 - Filtros para el comando playerlist
 
-## [1.1.0] - 2025-09-10
+## [1.1.0] - 2025-10-3
 
 ### Añadido
 - Comando `playerinfo` para obtener información detallada de un jugador específico
 - Comando `serverinfo` para obtener información detallada del servidor
 - Soporte para salida en formato JSON
 
-## [1.0.0] - 2025-09-05
+## [1.0.0] - 2025-10-02
 
 ### Añadido
 - Versión inicial del plugin

@@ -29,8 +29,6 @@ public class PlayerListCommand
     {
         try
         {
-            var players = _playerService.GetPlayerList();
-
             // Verificar si se solicita formato JSON
             bool useJsonFormat = false;
             int startIndex = 1;
@@ -40,6 +38,9 @@ public class PlayerListCommand
                 useJsonFormat = true;
                 startIndex = 2;
             }
+
+            // Obtener lista de jugadores con o sin estadísticas según el formato
+            var players = _playerService.GetPlayerList(useJsonFormat);
 
             // Aplicar filtros si se proporcionan (después del parámetro json si existe)
             if (_config.EnableFilters && command.ArgCount > startIndex)
@@ -71,7 +72,7 @@ public class PlayerListCommand
             }
             else
             {
-                // Mostrar como tabla
+                // Mostrar como tabla (sin estadísticas)
                 var serverInfo = _serverService.GetServerInfo();
                 _formatter.DisplayPlayerTable(command, players, serverInfo);
             }

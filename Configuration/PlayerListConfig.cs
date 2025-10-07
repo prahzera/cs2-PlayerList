@@ -14,9 +14,6 @@ public class PlayerListConfig : BasePluginConfig
     [JsonPropertyName("TrackConnectionTime")]
     public bool TrackConnectionTime { get; set; } = true;
 
-    [JsonPropertyName("EnableExport")]
-    public bool EnableExport { get; set; } = true;
-
     [JsonPropertyName("TableFormat")]
     public TableFormatConfig TableFormat { get; set; } = new TableFormatConfig();
 }

@@ -1,9 +1,12 @@
 # PlayerList Plugin para CS2
 
+[![English](https://img.shields.io/badge/README-English-blue)](README.md)
+[![Español](https://img.shields.io/badge/README-Español-red)](README_es.md)
+
 Este plugin para Counter-Strike 2 agrega comandos RCON que permiten obtener información de los jugadores conectados al servidor y estadísticas del servidor. El formato de salida depende de los parámetros proporcionados:
 
 - Sin parámetros: Muestra tabla formateada
-- Con parámetro `json`: Devuelve JSON
+- Con parámetro `json`: Devuelve JSON con estadísticas adicionales de los jugadores (kills, deaths, assists, etc.)
 
 **Nota importante**: Los comandos solo pueden ser ejecutados desde la consola del servidor o RCON. Los jugadores en el juego no pueden ejecutar estos comandos.
 
@@ -12,10 +15,10 @@ Este plugin para Counter-Strike 2 agrega comandos RCON que permiten obtener info
 - Comando `playerlist` con salida condicional (tabla o JSON) e información del servidor
 - Comando `serverinfo` para obtener información detallada del servidor
 - Comando `playerinfo` para obtener información detallada de un jugador específico
-- Comando `exportplayerlist` para exportar la lista de jugadores a un archivo JSON
 - Filtros para el comando [`playerlist`](https://github.com/prahzera/cs2-PlayerList/blob/main/Commands/PlayerListCommand.cs)
-- Seguimiento de tiempo de sesión de los jugadores
+- Seguimiento de tiempo de sesión de los jugadores (tiempo desde que el jugador se conectó al servidor)
 - Configuración personalizable usando el sistema de configuración de CounterStrikeSharp
+- **Salida JSON mejorada**: Estadísticas de jugadores (kills, deaths, assists) disponibles solo en formato JSON
 - **Restricción de seguridad**: Solo puede ser ejecutado por administradores del servidor (consola o RCON)
 
 ## Comandos disponibles
@@ -29,8 +32,8 @@ playerlist [json] [filtros]
 ```
 
 **Formatos de salida:**
-- `playerlist` - Muestra una tabla formateada con información del servidor
-- `playerlist json` - Devuelve JSON con información del servidor y jugadores
+- `playerlist` - Muestra una tabla formateada con información del servidor (sin estadísticas de jugadores)
+- `playerlist json` - Devuelve JSON con información del servidor y estadísticas de jugadores (kills, deaths, assists)
 
 **Filtros disponibles:**
 - `--team:t` o `--terrorist`: Mostrar solo jugadores del equipo terrorista
@@ -78,21 +81,13 @@ playerinfo <steamid>
 playerinfo 76561198012345678
 ```
 
-### exportplayerlist
-Exporta la lista de jugadores a un archivo JSON en el directorio de configuración del servidor.
-
-**Uso:**
-```
-exportplayerlist
-```
-
 ## Instalación
 
 1. Compila el plugin usando `dotnet build`
 2. Copia el archivo `PlayerListPlugin.dll` generado en la carpeta `plugins` de tu servidor CS2
 3. Reinicia el servidor
 
-La primera vez que se ejecute el plugin, CounterStrikeSharp creará automáticamente un archivo de configuración en [`configs/plugins/PlayerListPlugin.json`](https://github.com/usuario/cs2-PlayerList/blob/main/configs/plugins/PlayerListPlugin/PlayerListPlugin.json) con la configuración predeterminada.
+La primera vez que se ejecute el plugin, CounterStrikeSharp creará automáticamente un archivo de configuración en [`configs/plugins/PlayerListPlugin/PlayerListPlugin.json`](https://github.com/prahzera/cs2-PlayerList/blob/main/configs/plugins/PlayerListPlugin/PlayerListPlugin.json) con la configuración predeterminada.
 
 ## Uso
 
@@ -113,14 +108,14 @@ JUGADORES: 2/16
 ========================================================================
 Nombre               SteamID           Equipo          Bot   Tiempo Sesión  
 ------------------------------------------------------------------------
-Juan Perez           76561198012345678 Terrorista      No    15m 30s        
-Bot1                 0                 Anti-Terrorista Si    12m 45s        
+Juan Perez           76561198012345678 Terrorists      No    15m 30s        
+Bot1                 0                 Counter-Terrorists Si    12m 45s        
 ------------------------------------------------------------------------
 Total de jugadores: 2 | Tiempo activo: 25m 10s
 ========================================================================
 ```
 
-### Mostrar JSON de jugadores con información del servidor
+### Mostrar JSON de jugadores con información del servidor y estadísticas
 
 Ejecuta el comando `playerlist json` desde la consola del servidor o RCON:
 
@@ -144,22 +139,32 @@ Esto devolverá un JSON como:
     {
       "Name": "Juan Perez",
       "SteamID": "76561198012345678",
-      "Team": "Terrorista",
+      "Team": "Terrorists",
       "ConnectedTime": 1697049600,
       "SessionTime": "00:15:30",
-      "IsBot": false
+      "IsBot": false,
+      "Kills": 5,
+      "Deaths": 2,
+      "Assists": 3
     },
     {
       "Name": "Bot1",
       "SteamID": "0",
-      "Team": "Anti-Terrorista",
+      "Team": "Counter-Terrorists",
       "ConnectedTime": 1697049600,
       "SessionTime": "00:12:45",
-      "IsBot": true
+      "IsBot": true,
+      "Kills": 0,
+      "Deaths": 0,
+      "Assists": 0
     }
   ]
 }
 ```
+
+Nota: Las estadísticas de jugadores (kills, deaths, assists) solo están disponibles en formato JSON, no en la tabla formateada.
+
+El "Tiempo Sesión" muestra cuánto tiempo lleva el jugador conectado al servidor. Esta función se puede habilitar o deshabilitar en el archivo de configuración.
 
 ### Mostrar información del servidor
 
@@ -196,7 +201,6 @@ Contenido predeterminado:
   "EnablePlayerInfoCommand": true,
   "EnableFilters": true,
   "TrackConnectionTime": true,
-  "EnableExport": true,
   "TableFormat": {
     "ShowBotColumn": true,
     "ShowTeamColumn": true,
@@ -205,6 +209,15 @@ Contenido predeterminado:
   "ConfigVersion": 1
 }
 ```
+
+Opciones de configuración:
+- `EnablePlayerInfoCommand`: Habilita/deshabilita el comando `playerinfo`
+- `EnableFilters`: Habilita/deshabilita filtros para el comando `playerlist`
+- `TrackConnectionTime`: Habilita/deshabilita el seguimiento de tiempo de sesión de los jugadores
+- `TableFormat`: Controla qué columnas se muestran en la tabla formateada
+  - `ShowBotColumn`: Muestra/oculta la columna "Bot"
+  - `ShowTeamColumn`: Muestra/oculta la columna "Equipo"
+  - `ShowConnectedTimeColumn`: Muestra/oculta la columna "Tiempo Sesión"
 
 ## Seguridad
 

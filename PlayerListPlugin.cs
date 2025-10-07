@@ -16,7 +16,7 @@ public class PlayerListPlugin : BasePlugin, IPluginConfig<PlayerListConfig>
 {
     public override string ModuleName => "Player List Plugin";
     public override string ModuleVersion => "1.3.0";
-    public override string ModuleAuthor => "Qoder";
+    public override string ModuleAuthor => "Prahzera";
     
     public PlayerListConfig Config { get; set; } = new();
     
@@ -34,7 +34,6 @@ public class PlayerListPlugin : BasePlugin, IPluginConfig<PlayerListConfig>
     private PlayerListCommand? _playerListCommand;
     private ServerInfoCommand? _serverInfoCommand;
     private PlayerInfoCommand? _playerInfoCommand;
-    private ExportPlayerListCommand? _exportPlayerListCommand;
 
     public void OnConfigParsed(PlayerListConfig config)
     {
@@ -55,7 +54,6 @@ public class PlayerListPlugin : BasePlugin, IPluginConfig<PlayerListConfig>
         _playerListCommand = new PlayerListCommand(_playerService, _serverService, _formatter, Config);
         _serverInfoCommand = new ServerInfoCommand(_serverService, _formatter);
         _playerInfoCommand = new PlayerInfoCommand(_playerService, _formatter, Config);
-        _exportPlayerListCommand = new ExportPlayerListCommand(_playerService, _serverService, Config);
 
         RegisterListener<Listeners.OnClientConnected>(OnClientConnected);
         RegisterListener<Listeners.OnClientDisconnect>(OnClientDisconnect);
@@ -101,13 +99,6 @@ public class PlayerListPlugin : BasePlugin, IPluginConfig<PlayerListConfig>
     public void OnPlayerInfoCommand(CCSPlayerController? player, CommandInfo command)
     {
         _playerInfoCommand?.HandleCommand(player, command);
-    }
-
-    [ConsoleCommand("exportplayerlist", "Exporta la lista de jugadores a un archivo JSON")]
-    [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
-    public void OnExportPlayerListCommand(CCSPlayerController? player, CommandInfo command)
-    {
-        _exportPlayerListCommand?.HandleCommand(player, command);
     }
 
     public override void Unload(bool hotReload)

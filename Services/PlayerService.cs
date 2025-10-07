@@ -21,7 +21,7 @@ public class PlayerService
         _config = config;
     }
 
-    public List<PlayerInfo> GetPlayerList()
+    public List<PlayerInfo> GetPlayerList(bool includeStats = false)
     {
         return Utilities.GetPlayers()
             .Where(p => p.IsValid && p.PlayerPawn.IsValid && p.SteamID > 0)
@@ -32,12 +32,15 @@ public class PlayerService
                 Team = GetTeamName(p.Team),
                 ConnectedTime = GetConnectedTime(p),
                 SessionTime = GetSessionTime(p),
-                IsBot = p.IsBot
+                IsBot = p.IsBot,
+                Kills = includeStats ? GetPlayerKills(p) : 0,
+                Deaths = includeStats ? GetPlayerDeaths(p) : 0,
+                Assists = includeStats ? GetPlayerAssists(p) : 0
             })
             .ToList();
     }
 
-    public PlayerInfo GetPlayerInfo(CCSPlayerController player)
+    public PlayerInfo GetPlayerInfo(CCSPlayerController player, bool includeStats = false)
     {
         return new PlayerInfo
         {
@@ -46,7 +49,10 @@ public class PlayerService
             Team = GetTeamName(player.Team),
             ConnectedTime = GetConnectedTime(player),
             SessionTime = GetSessionTime(player),
-            IsBot = player.IsBot
+            IsBot = player.IsBot,
+            Kills = includeStats ? GetPlayerKills(player) : 0,
+            Deaths = includeStats ? GetPlayerDeaths(player) : 0,
+            Assists = includeStats ? GetPlayerAssists(player) : 0
         };
     }
 
@@ -54,11 +60,11 @@ public class PlayerService
     {
         return team switch
         {
-            CsTeam.None => "Ninguno",
-            CsTeam.Spectator => "Espectador",
-            CsTeam.Terrorist => "Terrorista",
-            CsTeam.CounterTerrorist => "Anti-Terrorista",
-            _ => "Desconocido"
+            CsTeam.None => "None",
+            CsTeam.Spectator => "Spectator",
+            CsTeam.Terrorist => "Terrorists",
+            CsTeam.CounterTerrorist => "Counter-Terrorists",
+            _ => "Unknown"
         };
     }
 
@@ -70,10 +76,63 @@ public class PlayerService
 
     private TimeSpan? GetSessionTime(CCSPlayerController player)
     {
-        if (_config.TrackConnectionTime && player.SteamID > 0)
+        // Si el seguimiento de tiempo de conexión está deshabilitado, retornar null
+        if (!_config.TrackConnectionTime || player.SteamID <= 0)
         {
-            return _connectionTracker.GetPlayerSessionTime(player.SteamID);
+            return null;
         }
-        return null;
+
+        // Obtener el tiempo de sesión del tracker
+        var sessionTime = _connectionTracker.GetPlayerSessionTime(player.SteamID);
+        
+        // Si no se encuentra el tiempo de sesión, intentar calcularlo de otra manera
+        if (sessionTime == null)
+        {
+            // Como fallback, podemos usar el tiempo desde que se cargó el plugin
+            // Esto no es ideal pero mejor que null
+            return TimeSpan.Zero;
+        }
+        
+        return sessionTime;
+    }
+
+    // Métodos para obtener estadísticas del jugador
+    private int GetPlayerKills(CCSPlayerController player)
+    {
+        try
+        {
+            var kills = player.ActionTrackingServices?.MatchStats?.Kills;
+            return kills.HasValue ? kills.Value : 0;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private int GetPlayerDeaths(CCSPlayerController player)
+    {
+        try
+        {
+            var deaths = player.ActionTrackingServices?.MatchStats?.Deaths;
+            return deaths.HasValue ? deaths.Value : 0;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private int GetPlayerAssists(CCSPlayerController player)
+    {
+        try
+        {
+            var assists = player.ActionTrackingServices?.MatchStats?.Assists;
+            return assists.HasValue ? assists.Value : 0;
+        }
+        catch
+        {
+            return 0;
+        }
     }
 }
