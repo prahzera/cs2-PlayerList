@@ -14,7 +14,7 @@ namespace PlayerListPlugin;
 
 public class PlayerListPlugin : BasePlugin, IPluginConfig<PlayerListConfig>
 {
-    public override string ModuleName => "Player List Plugin";
+    public override string ModuleName => "PlayerList";
     public override string ModuleVersion => "1.3.0";
     public override string ModuleAuthor => "Prahzera";
     
