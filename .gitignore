@@ -1,2 +1,13 @@
-bin
-obj
+# Carpetas de compilación
+bin/
+obj/
+build/
+
+# Archivos de Visual Studio
+*.user
+*.suo
+*.sln.docstates
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
