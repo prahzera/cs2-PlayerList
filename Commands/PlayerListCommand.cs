@@ -65,7 +65,7 @@ public class PlayerListCommand
 
                 var json = JsonSerializer.Serialize(response, new JsonSerializerOptions 
                 { 
-                    WriteIndented = true 
+                    WriteIndented = false 
                 });
 
                 command.ReplyToCommand(json);
