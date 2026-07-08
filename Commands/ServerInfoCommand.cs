@@ -32,7 +32,7 @@ public class ServerInfoCommand
             {
                 var json = JsonSerializer.Serialize(serverInfo, new JsonSerializerOptions 
                 { 
-                    WriteIndented = true 
+                    WriteIndented = false 
                 });
 
                 command.ReplyToCommand(json);
