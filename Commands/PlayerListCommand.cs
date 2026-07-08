@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -29,20 +30,29 @@ public class PlayerListCommand
     {
         try
         {
-            // Verificar si se solicita formato JSON
             bool useJsonFormat = false;
+            bool useCompactFormat = false;
             int startIndex = 1;
-            
-            if (command.ArgCount > 1 && command.ArgByIndex(1).ToLower() == "json")
+
+            if (command.ArgCount > 1)
             {
-                useJsonFormat = true;
-                startIndex = 2;
+                var arg = command.ArgByIndex(1).ToLower();
+                if (arg == "json")
+                {
+                    useJsonFormat = true;
+                    startIndex = 2;
+                }
+                else if (arg == "compact")
+                {
+                    useCompactFormat = true;
+                    startIndex = 2;
+                }
             }
 
-            // Obtener lista de jugadores con o sin estadísticas según el formato
-            var players = _playerService.GetPlayerList(useJsonFormat);
+            // Estadísticas solo en JSON o compact
+            var players = _playerService.GetPlayerList(useJsonFormat || useCompactFormat);
 
-            // Aplicar filtros si se proporcionan (después del parámetro json si existe)
+            // Aplicar filtros si se proporcionan
             if (_config.EnableFilters && command.ArgCount > startIndex)
             {
                 var args = new List<string>();
@@ -55,7 +65,6 @@ public class PlayerListCommand
 
             if (useJsonFormat)
             {
-                // Devolver como JSON
                 var response = new PlayerListResponse
                 {
                     ServerInfo = _serverService.GetServerInfo(),
@@ -63,12 +72,54 @@ public class PlayerListCommand
                     Players = players
                 };
 
-                var json = JsonSerializer.Serialize(response, new JsonSerializerOptions 
-                { 
-                    WriteIndented = false 
+                var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+                {
+                    WriteIndented = false
                 });
 
                 command.ReplyToCommand(json);
+            }
+            else if (useCompactFormat)
+            {
+                var serverInfo = _serverService.GetServerInfo();
+                var sb = new StringBuilder();
+
+                // Línea 1: ServerInfo
+                sb.Append(serverInfo.HostName);
+                sb.Append('|');
+                sb.Append(serverInfo.MapName);
+                sb.Append('|');
+                sb.Append(serverInfo.MaxPlayers);
+                sb.Append('|');
+                sb.Append(serverInfo.CurrentPlayers);
+                sb.Append('|');
+                sb.Append(serverInfo.Uptime.ToString(@"hh\:mm\:ss\.fffffff"));
+                sb.Append('\n');
+
+                // Línea 2: PlayerCount
+                sb.Append(players.Count);
+                sb.Append('\n');
+
+                // Líneas 3+: Players
+                foreach (var p in players)
+                {
+                    sb.Append(p.Name.Replace("|", "┃"));
+                    sb.Append('|');
+                    sb.Append(p.SteamID);
+                    sb.Append('|');
+                    sb.Append(TeamToShort(p.Team));
+                    sb.Append('|');
+                    sb.Append(p.ConnectedTime);
+                    sb.Append('|');
+                    sb.Append(p.Kills);
+                    sb.Append('|');
+                    sb.Append(p.Deaths);
+                    sb.Append('|');
+                    sb.Append(p.Assists);
+                    sb.Append('\n');
+                }
+
+                command.ReplyToCommand(sb.ToString().TrimEnd('\n'));
             }
             else
             {
@@ -81,5 +132,17 @@ public class PlayerListCommand
         {
             command.ReplyToCommand($"Error al obtener la lista de jugadores: {ex.Message}");
         }
+    }
+
+    private static string TeamToShort(string team)
+    {
+        return team switch
+        {
+            "Counter-Terrorists" => "CT",
+            "Terrorists" => "T",
+            "Spectator" => "SPEC",
+            "None" => "NONE",
+            _ => team
+        };
     }
 }
