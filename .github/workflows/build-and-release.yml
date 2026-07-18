@@ -1,0 +1,87 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión personalizada (ej: 1.1.0). Dejar vacío para auto-generar'
+        required: false
+        type: string
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  PROJECT_NAME: 'PlayerListPlugin'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore --verbosity minimal
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release/PlayerListPlugin
+          cp bin/Release/net10.0/PlayerListPlugin.deps.json release/PlayerListPlugin/
+          cp bin/Release/net10.0/PlayerListPlugin.dll release/PlayerListPlugin/
+          cd release && zip -r PlayerListPlugin.zip PlayerListPlugin/ && cd ..
+          echo "✅ Archivos preparados:"
+          ls -la release/
+
+      - name: Determine version
+        id: version
+        run: |
+          REF_NAME="${{ github.ref_name }}"
+          INPUT_VER="${{ github.event.inputs.version }}"
+
+          # Prioridad: 1) Tag push (v*)  2) Input manual  3) Auto-generar
+          if [[ "${{ github.ref_type }}" == "tag" && "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            # Extraer versión del tag: v1.1.0 → 1.1.0
+            VER="${REF_NAME#v}"
+            echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          elif [[ -n "$INPUT_VER" ]]; then
+            echo "version=${INPUT_VER}" >> "$GITHUB_OUTPUT"
+          else
+            # Auto-generar: primera ejecución = 1.0.0
+            PATCH=$(( ${{ github.run_number }} - 1 ))
+            echo "version=1.0.${PATCH}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: "${{ env.PROJECT_NAME }} v${{ steps.version.outputs.version }}"
+          body: |
+            ## ${{ env.PROJECT_NAME }} v${{ steps.version.outputs.version }}
+
+            Compilación automática del commit `${{ github.sha }}`
+
+            ### 📦 Archivos incluidos:
+            - `PlayerListPlugin.deps.json`
+            - `PlayerListPlugin.dll`
+
+            ### 🚀 Instalación:
+            1. Descarga los archivos de los assets
+            2. Colócalos en la carpeta de plugins de tu servidor CS2
+            3. Recarga el plugin o reinicia el servidor
+          files: release/PlayerListPlugin.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: false

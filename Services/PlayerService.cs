@@ -70,8 +70,19 @@ public class PlayerService
 
     private long GetConnectedTime(CCSPlayerController player)
     {
-        // Devuelve el tiempo de conexión en segundos desde Unix epoch
-        return ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+        // Devuelve el timestamp Unix de cuando el jugador se conectó
+        if (!_config.TrackConnectionTime || player.SteamID <= 0)
+        {
+            return 0;
+        }
+
+        var connectTime = _connectionTracker.GetPlayerConnectTime(player.SteamID);
+        if (connectTime == null)
+        {
+            return 0;
+        }
+
+        return ((DateTimeOffset)connectTime.Value).ToUnixTimeSeconds();
     }
 
     private TimeSpan? GetSessionTime(CCSPlayerController player)
