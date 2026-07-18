@@ -39,8 +39,8 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release/PlayerListPlugin
-          cp bin/Release/net10.0/PlayerListPlugin.deps.json release/PlayerListPlugin/
-          cp bin/Release/net10.0/PlayerListPlugin.dll release/PlayerListPlugin/
+          cp build/bin/Release/net10.0/PlayerListPlugin.deps.json release/PlayerListPlugin/
+          cp build/bin/Release/net10.0/PlayerListPlugin.dll release/PlayerListPlugin/
           cd release && zip -r PlayerListPlugin.zip PlayerListPlugin/ && cd ..
           echo "✅ Archivos preparados:"
           ls -la release/
